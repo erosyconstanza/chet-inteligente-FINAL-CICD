@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Inteligente - Prototipo Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --bg-light: #F5F5F7;
+            --card-light: #FFFFFF;
+            --border-light: #E5E5E7;
+            --text-title-light: #000000;
+            --text-body-light: #484848;
+
+            --bg-dark: #121212;
+            --card-dark: #1E1E1E;
+            --border-dark: #2C2C2C;
+            --text-title-dark: #F5F5F7;
+            --text-body-dark: #86868B;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-body-light);
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-body-dark);
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        header {
+            padding: 24px;
+            text-align: center;
+            background: var(--card-light);
+            border-bottom: 0.5px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .dark-mode header {
+            background: var(--bg-dark);
+            border-bottom: 0.5px solid var(--border-dark);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-title-light);
+        }
+
+        .dark-mode h1 {
+            color: var(--text-title-dark);
+        }
+
+        .content {
+            padding: 24px;
+            flex: 1;
+            padding-bottom: 100px;
+        }
+
+        /* Recipe Cards */
+        .recipe-card {
+            background: var(--card-light);
+            border-radius: 12px;
+            border: 0.5px solid var(--border-light);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .dark-mode .recipe-card {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+        }
+
+        .recipe-img {
+            height: 200px;
+            background: #E5E5E7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .recipe-info {
+            padding: 16px;
+        }
+
+        .recipe-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-title-light);
+            margin-bottom: 4px;
+        }
+
+        .dark-mode .recipe-title {
+            color: var(--text-title-dark);
+        }
+
+        .recipe-meta {
+            font-size: 14px;
+            color: var(--text-body-light);
+            display: flex;
+            gap: 12px;
+        }
+
+        .dark-mode .recipe-meta {
+            color: var(--text-body-dark);
+        }
+
+        /* Inventory List */
+        .inventory-item {
+            background: var(--card-light);
+            padding: 20px;
+            border-radius: 12px;
+            border: 0.5px solid var(--border-light);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dark-mode .inventory-item {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+        }
+
+        .item-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(46, 125, 50, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            margin-right: 16px;
+            font-size: 20px;
+        }
+
+        .item-details h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--text-title-light);
+        }
+
+        .dark-mode .item-details h3 {
+            color: var(--text-title-dark);
+        }
+
+        .item-details p {
+            margin: 4px 0 0;
+            font-size: 14px;
+            color: var(--text-body-light);
+        }
+
+        .dark-mode .item-details p {
+            color: var(--text-body-dark);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-light);
+            border-top: 0.5px solid var(--border-light);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            padding-bottom: constant(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .dark-mode nav {
+            background: var(--bg-dark);
+            border-top-color: var(--border-dark);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-body-light);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .dark-mode .nav-item {
+            color: var(--text-body-dark);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-light);
+            border: 0.5px solid var(--border-light);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 200;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .dark-mode .theme-toggle {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" onclick="toggleTheme()">Modo Claroo</button>
+
+    <div class="container">
+        <header>
+            <h1 id="screen-title">Chef Inteligente</h1>
+        </header>
+
+        <!-- Home Screen -->
+        <div id="home-screen" class="content">
+            <div class="recipe-card">
+                <div class="recipe-img" style="background-image: url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800')"></div>
+                <div class="recipe-info">
+                    <div class="recipe-title">Paella Valenciana</div>
+                    <div class="recipe-meta">
+                        <span>⏱ 45 min</span>
+                        <span>📍 España</span>
+                    </div>
+                </div>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-img" style="background-image: url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800')"></div>
+                <div class="recipe-info">
+                    <div class="recipe-title">Ceviche Clásico</div>
+                    <div class="recipe-meta">
+                        <span>⏱ 20 min</span>
+                        <span>📍 Perú</span>
+                    </div>
+                </div>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-img" style="background-image: url('https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&q=80&w=800')"></div>
+                <div class="recipe-info">
+                    <div class="recipe-title">Empanadas de Viento</div>
+                    <div class="recipe-meta">
+                        <span>⏱ 30 min</span>
+                        <span>📍 Ecuador</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Screen -->
+        <div id="inventory-screen" class="content hidden">
+            <div class="inventory-item">
+                <div class="item-icon">🥚</div>
+                <div class="item-details">
+                    <h3>Huevos</h3>
+                    <p>6 unidades</p>
+                </div>
+            </div>
+            <div class="inventory-item">
+                <div class="item-icon">🥛</div>
+                <div class="item-details">
+                    <h3>Leche Desnatada</h3>
+                    <p>1 litro</p>
+                </div>
+            </div>
+            <div class="inventory-item">
+                <div class="item-icon">🍞</div>
+                <div class="item-details">
+                    <h3>Pan Integral</h3>
+                    <p>500g</p>
+                </div>
+            </div>
+            <div class="inventory-item">
+                <div class="item-icon">🥫</div>
+                <div class="item-details">
+                    <h3>Tomates en Conserva</h3>
+                    <p>400g</p>
+                </div>
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav-item active" onclick="showScreen('home')">
+                <span class="nav-icon">🏠</span>
+                <span>Inicio</span>
+            </div>
+            <div class="nav-item" onclick="showScreen('inventory')">
+                <span class="nav-icon">📦</span>
+                <span>Despensa</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">📷</span>
+                <span>Escanear</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">💖</span>
+                <span>Favoritos</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const btn = document.querySelector('.theme-toggle');
+            if (body.classList.contains('dark-mode')) {
+                btn.innerText = 'Modo Claro';
+            } else {
+                btn.innerText = 'Modo Oscuro';
+            }
+        }
+
+        function showScreen(screen) {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('inventory-screen').classList.add('hidden');
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            if (screen === 'home') {
+                document.getElementById('home-screen').classList.remove('hidden');
+                document.getElementById('screen-title').innerText = 'Chef Inteligente';
+                navItems[0].classList.add('active');
+            } else if (screen === 'inventory') {
+                document.getElementById('inventory-screen').classList.remove('hidden');
+                document.getElementById('screen-title').innerText = 'Mi Despensa';
+                navItems[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
